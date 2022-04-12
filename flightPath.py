@@ -16,20 +16,20 @@ class Path:
     self.leavingHospital()
     self.approachAirport()
 
-  def firstTowerLoop(): #"after takeoff go through loop +2pnt"
+  def firstTowerLoop(): #after takeoff go through loop +2pnt
     t.move_down(2)
     t.move_forward(50)
 
-  def overSecondTowers(): #"after going through loop, approach and move over red towers" 
+  def overSecondTowers(): #after going through loop, approach and move over red towers 
     t.move_forward(68)
     t.rotate_cw(45)
     t.move_forward(72)
 
-  def aroundWindTunnel(): #"move around wind tunnel and face hospital"
+  def aroundWindTunnel(): #move around wind tunnel and face hospital
     t.move_forward(50)
     t.rotate_cw(135)
 
-  def approachHospital(): #"move above hospital"
+  def approachHospital(): #move above hospital
     t.move_forward(68)
 
   def leavingHospital(): #leaving the hospital after relaunching
