@@ -4,10 +4,20 @@ import time
 import traceback
 
 class Tello:
+	"""Wrapper to simply interactions with the Ryze Tello drone."""
 
-
-	def __init__(self, units="in", local_ip="", local_port=8888, interface_name="no-interface", command_timeout=10.0, tello_ip="192.168.10.1", tello_port=8889):
-	
+	def __init__(self, units="cm", local_ip="", local_port=8888, interface_name="no-interface", command_timeout=10.0, tello_ip="192.168.10.1", tello_port=8889):
+		"""Binds to the local IP/port and puts the Tello into command mode.
+		Args:
+			units (str): Units to use for movement, "cm", "in", "m", "ft".
+			local_ip (str): Local IP address to bind.
+			local_port (int): Local port to bind.
+			command_timeout (int|float): Number of seconds to wait for a response to a command.
+			tello_ip (str): Tello IP.
+			tello_port (int): Tello port.
+		Raises:
+			RuntimeError: If the Tello rejects the attempt to enter command mode.
+		"""
 		if units == "cm" or units == "in" or units == "m" or units == "ft":	
 			self.units = units
 		else:
@@ -33,10 +43,21 @@ class Tello:
 			raise RuntimeError("Tello rejected attempt to enter command mode")
 
 	def __del__(self):
+		"""Closes the local socket."""
 
 		self.socket.close()
 		
 	def send_command(self, command):
+		"""Sends a command to the Tello and waits for a response.
+		If self.command_timeout is exceeded before a response is received,
+		a RuntimeError exception is raised.
+		Args:
+			command (str): Command to send.
+		Returns:
+			str: Response from Tello.
+		Raises:
+			RuntimeError: If no response is received within self.timeout seconds.
+		"""
 
 		self.abort_flag = False
 		timer = threading.Timer(self.command_timeout, self.set_abort_flag)
@@ -57,11 +78,17 @@ class Tello:
 		return response
 
 	def set_abort_flag(self):
-
+		"""Sets self.abort_flag to True.
+		Used by the timer in Tello.send_command() to indicate that a response
+		timeout has occurred.
+		"""
 
 		self.abort_flag = True
 
 	def _receive_thread(self):
+		"""Listens for responses from the Tello.
+		Runs as a thread, sets self.response to whatever the Tello last returned.
+		"""
 		while True:
 			try:
 				self.response, ip = self.socket.recvfrom(1518)
@@ -69,10 +96,21 @@ class Tello:
 				break
 
 	def flip(self, direction):
+		"""Flips in a direction.
+		Args:
+			direction (str): Direction to flip, "l", "r", "f", "b", "lb", "lf", "rb" or "rf".
+		Returns:
+			str: Response from Tello, "ok" or "false".
+		"""
 
 		return self.send_command("flip %s" % direction)
 
 	def get_battery(self):
+		"""Gets percent battery remaining.
+		Returns:
+			int: Percent battery remaining.
+		"""
+
 		battery = self.send_command("battery?")
 
 		try:
@@ -83,6 +121,10 @@ class Tello:
 		return battery
 
 	def get_flight_time(self):
+		"""Returns the number of seconds elapsed during flight.
+		Returns:
+			int: Seconds elapsed during flight.
+		"""
 
 		flight_time = self.send_command("time?")
 
@@ -94,6 +136,11 @@ class Tello:
 		return flight_time
 
 	def get_speed(self):
+		"""Returns the current speed.
+		Returns:
+			int: Current speed.
+		"""
+
 		speed = self.send_command("speed?")
 
 		try:
@@ -111,6 +158,15 @@ class Tello:
 		return speed
 		
 	def set_speed(self, speed):
+		"""Sets speed.
+		This method expects MPS. The Tello API expects speeds from
+		1 to 100 centimeters/second.
+		0.01 to 1 MPS
+		Args:
+			speed (int|float): Speed.
+		Returns:
+			str: Response from Tello, "ok" or "false".
+		"""
 
 		speed = float(speed)
 
@@ -127,10 +183,19 @@ class Tello:
 		return self.send_command("speed %s" % speed)
 
 	def takeoff(self):
+		"""Initiates take-off.
+		Returns:
+			str: Response from Tello, "ok" or "false".
+		"""
+		
 		print("Taking off")
 		return self.send_command("takeoff")
 
 	def land(self):
+		"""Initiates landing.
+		Returns:
+			str: Response from Tello, "ok" or "false".
+		"""
 
 		return self.send_command("land")
 
