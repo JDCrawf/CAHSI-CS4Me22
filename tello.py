@@ -5,7 +5,6 @@ import traceback
 
 class Tello:
 
-
 	def __init__(self, units="in", local_ip="", local_port=8888, interface_name="no-interface", command_timeout=10.0, tello_ip="192.168.10.1", tello_port=8889):
 	
 		if units == "cm" or units == "in" or units == "m" or units == "ft":	
