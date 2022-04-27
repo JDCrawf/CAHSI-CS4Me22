@@ -65,25 +65,22 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(thr
 log = logging.getLogger('Drone app')
 log.info('Starting')
 
-t = Tello()	# connect to tello.py class
-p = Path()	# connect to flightPath.py class
+t = Tello("in")	# Initializes the tello class
+p = Path(t)	# Initializes the flightPath class
 
 try:
 	start_battery = t.get_battery()
 	print("Battery percentage: %s" % start_battery)
-	t.takeoff()			#"launch from airport"
+	t.takeoff()			#launch from airport
 	p.firstPathway()	#navigate to the hospital
 	t.land()			#land at hospital
 	t.takeoff()			#leaving the hospital
 	p.secondPathway()	#navigate to the airport
 	t.land()			#landing at the airport
-
-  
-
   
 except Exception as e:
 	log.error(e)
-t.land()
+
 end_battery = t.get_battery()
 print("Battery percentage: %s" % end_battery)
 print("Battery used for flight %s" % (start_battery - end_battery))
